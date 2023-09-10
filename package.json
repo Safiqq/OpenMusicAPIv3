@@ -1,0 +1,21 @@
+{
+  "name": "dicoding",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@hapi/hapi": "^21.3.2",
+    "dotenv": "^16.3.1",
+    "joi": "^17.10.1",
+    "nanoid": "^3.1.20",
+    "pg": "^8.11.3"
+  },
+  "scripts": {
+    "start": "NODE_ENV=production node ./src/server.js",
+    "migrate": "node-pg-migrate",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./src"
+  },
+  "author": "safiqq",
+  "license": "ISC"
+}

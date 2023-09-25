@@ -10,6 +10,7 @@
         "ecmaVersion": 2020
     },
     "rules": {
-        "no-console": "off"
+        "indent": ["error", 2],
+        "no-unused-vars": ["error", { "vars": "all", "args": "all" }]
     }
 }

@@ -1,19 +1,20 @@
 /* eslint-disable no-underscore-dangle */
 
 class AlbumsHandler {
-  constructor(service, validator) {
+  constructor(service, songsService, validator) {
     this._service = service;
+    this._songsService = songsService;
     this._validator = validator;
   }
 
   async postAlbumHandler(request, h) {
     this._validator.validateAlbumPayload(request.payload);
-    const { name, year } = request.payload;
 
-    const albumId = await this._service.addAlbum({ name, year });
+    const albumId = await this._service.addAlbum(request.payload);
 
     const response = h.response({
       status: 'success',
+      message: 'Album berhasil ditambahkan',
       data: {
         albumId,
       },
@@ -22,11 +23,30 @@ class AlbumsHandler {
     return response;
   }
 
+  async getAlbumsHandler() {
+    const albums = await this._service.getAlbums();
+
+    return {
+      status: 'success',
+      data: {
+        albums,
+      },
+    };
+  }
+
   async getAlbumByIdHandler(request, h) {
     const { id } = request.params;
 
-    // tambahin songs tapi hanya {id,title,performer}
     const album = await this._service.getAlbumById(id);
+    let songs = await this._songsService.getSongsByAlbumId(id);
+
+    songs = songs.map((song) => ({
+      id: song.id,
+      title: song.title,
+      performer: song.performer,
+    }));
+    album.songs = songs;
+
     const response = h.response({
       status: 'success',
       data: {
@@ -40,9 +60,9 @@ class AlbumsHandler {
   async putAlbumByIdHandler(request, h) {
     this._validator.validateAlbumPayload(request.payload);
     const { id } = request.params;
-    const { name, year } = request.payload;
 
-    await this._service.editAlbumById(id, { name, year });
+    await this._service.editAlbumById(id, request.payload);
+
     const response = h.response({
       status: 'success',
       message: 'Album berhasil diperbarui',
@@ -55,6 +75,7 @@ class AlbumsHandler {
     const { id } = request.params;
 
     await this._service.deleteAlbumById(id);
+
     const response = h.response({
       status: 'success',
       message: 'Album berhasil dihapus',

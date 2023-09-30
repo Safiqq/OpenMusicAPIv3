@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const { mapDBToModelSong, mapDBToModelActivity } = require('../../utils');
@@ -9,8 +7,8 @@ const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistsService {
   constructor(collaborationService) {
-    this._pool = new Pool();
-    this._collaborationService = collaborationService;
+    this.pool = new Pool();
+    this.collaborationService = collaborationService;
   }
 
   async addPlaylist({ name, owner }) {
@@ -23,7 +21,7 @@ class PlaylistsService {
       values: [id, name, owner, createdAt, updatedAt],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rows[0].id) throw new InvariantError('Playlist gagal ditambahkan');
 
@@ -40,7 +38,7 @@ class PlaylistsService {
       values: [owner],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
     return result.rows.map(mapDBToModelSong);
   }
 
@@ -50,7 +48,7 @@ class PlaylistsService {
       values: [id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan');
   }
@@ -61,7 +59,7 @@ class PlaylistsService {
       values: [id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new NotFoundError('Playlist tidak ditemukan');
 
@@ -76,7 +74,7 @@ class PlaylistsService {
     } catch (error) {
       if (error instanceof NotFoundError) throw error;
       try {
-        await this._collaborationService.verifyCollaborator(playlistId, userId);
+        await this.collaborationService.verifyCollaborator(playlistId, userId);
       } catch {
         throw error;
       }
@@ -94,7 +92,7 @@ class PlaylistsService {
       values: [id, playlistId, songId, userId, action, time, createdAt, updatedAt],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rows.length) throw new InvariantError('Song Activity gagal ditambahkan');
 
@@ -112,7 +110,7 @@ class PlaylistsService {
       ORDER BY time asc`,
       values: [id],
     };
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
     const activity = mapDBToModelActivity(result.rows);
     return activity;
   }

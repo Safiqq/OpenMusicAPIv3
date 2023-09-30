@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 const { mapDBToModelPlaylist } = require('../../utils');
@@ -8,8 +6,8 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 
 class PlaylistSongsService {
   constructor(songsService) {
-    this._pool = new Pool();
-    this._songsService = songsService;
+    this.pool = new Pool();
+    this.songsService = songsService;
   }
 
   async addPlaylistSong(playlistId, songId) {
@@ -17,14 +15,14 @@ class PlaylistSongsService {
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
 
-    await this._songsService.getSongById(songId);
+    await this.songsService.getSongById(songId);
 
     const query = {
       text: 'INSERT INTO playlistsongs VALUES($1, $2, $3, $4, $5) RETURNING id',
       values: [id, playlistId, songId, createdAt, updatedAt],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new InvariantError('Playlist song gagal ditambahkan');
 
@@ -43,7 +41,7 @@ class PlaylistSongsService {
       values: [id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new NotFoundError('Playlist tidak ditemukan');
 
@@ -58,7 +56,7 @@ class PlaylistSongsService {
       values: [playlistId, songId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new InvariantError('Playlist song gagal dihapus');
   }

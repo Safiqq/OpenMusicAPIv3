@@ -1,9 +1,8 @@
-/* eslint-disable no-console */
-
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const config = require('./utils/config');
 
 const albums = require('./api/albums');
 const AlbumsService = require('./services/postgres/AlbumsService');
@@ -34,6 +33,19 @@ const playlistSongs = require('./api/playlistSongs');
 const PlaylistSongsService = require('./services/postgres/PlaylistSongsService');
 const PlaylistSongsValidator = require('./validator/playlistSongs');
 
+const exportPlaylists = require('./api/exportPlaylists');
+const ExportPlaylistsValidator = require('./validator/exportPlaylists');
+
+const likes = require('./api/likes');
+const LikesService = require('./services/postgres/LikesService');
+
+const uploads = require('./api/uploads');
+const UploadsValidator = require('./validator/uploads');
+
+const ProducerService = require('./services/rabbitmq/ProducerService');
+const CacheService = require('./services/redis/CacheService');
+const StorageService = require('./services/S3/StorageService');
+
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
@@ -45,9 +57,13 @@ const init = async () => {
   const playlistsService = new PlaylistsService(collaborationsService);
   const playlistSongsService = new PlaylistSongsService(songsService);
 
+  const cacheService = new CacheService();
+  const storageService = new StorageService();
+  const likesServices = new LikesService(albumsService, cacheService);
+
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    port: config.app.port,
+    host: config.app.host,
     routes: {
       cors: {
         origin: ['*'],
@@ -61,7 +77,7 @@ const init = async () => {
     },
   ]);
 
-  server.auth.strategy('openmusicapiv2_jwt', 'jwt', {
+  server.auth.strategy('openmusicapiv3_jwt', 'jwt', {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
       aud: false,
@@ -132,6 +148,28 @@ const init = async () => {
         validator: PlaylistSongsValidator,
       },
     },
+    {
+      plugin: exportPlaylists,
+      options: {
+        producerService: ProducerService,
+        playlistsService,
+        validator: ExportPlaylistsValidator,
+      },
+    },
+    {
+      plugin: likes,
+      options: {
+        service: likesServices,
+      },
+    },
+    {
+      plugin: uploads,
+      options: {
+        storageService,
+        albumsService,
+        validator: UploadsValidator,
+      },
+    },
   ]);
 
   server.ext('onPreResponse', (request, h) => {
@@ -163,6 +201,7 @@ const init = async () => {
   });
 
   await server.start();
+  // eslint-disable-next-line no-console
   console.log(`Server berjalan pada ${server.info.uri}`);
 };
 

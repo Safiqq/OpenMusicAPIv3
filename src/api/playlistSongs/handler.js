@@ -1,21 +1,19 @@
-/* eslint-disable no-underscore-dangle */
-
 class PlaylistSongsHandler {
   constructor(playlistSongsService, playlistsService, validator) {
-    this._playlistSongsService = playlistSongsService;
-    this._playlistsService = playlistsService;
-    this._validator = validator;
+    this.playlistSongsService = playlistSongsService;
+    this.playlistsService = playlistsService;
+    this.validator = validator;
   }
 
   async postPlaylistSongHandler(request, h) {
-    this._validator.validatePlaylistSongPayload(request.payload);
+    this.validator.validatePlaylistSongPayload(request.payload);
     const { id: credentialId } = request.auth.credentials;
     const { songId } = request.payload;
     const { id: playlistId } = request.params;
 
-    await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
-    const playlistSongId = await this._playlistSongsService.addPlaylistSong(playlistId, songId);
-    await this._playlistsService.addPlaylistSongActivity(
+    await this.playlistsService.verifyPlaylistAccess(playlistId, credentialId);
+    const playlistSongId = await this.playlistSongsService.addPlaylistSong(playlistId, songId);
+    await this.playlistsService.addPlaylistSongActivity(
       playlistId,
       songId,
       credentialId,
@@ -37,8 +35,8 @@ class PlaylistSongsHandler {
     const { id: credentialId } = request.auth.credentials;
     const { id: playlistId } = request.params;
 
-    await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
-    const playlist = await this._playlistSongsService.getPlaylistSongById(playlistId);
+    await this.playlistsService.verifyPlaylistAccess(playlistId, credentialId);
+    const playlist = await this.playlistSongsService.getPlaylistSongById(playlistId);
 
     const response = h.response({
       status: 'success',
@@ -51,14 +49,14 @@ class PlaylistSongsHandler {
   }
 
   async deletePlaylistSongHandler(request, h) {
-    this._validator.validatePlaylistSongPayload(request.payload);
+    this.validator.validatePlaylistSongPayload(request.payload);
     const { id: credentialId } = request.auth.credentials;
     const { songId } = request.payload;
     const { id: playlistId } = request.params;
 
-    await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
-    await this._playlistSongsService.deletePlaylistSong(playlistId, songId);
-    await this._playlistsService.addPlaylistSongActivity(
+    await this.playlistsService.verifyPlaylistAccess(playlistId, credentialId);
+    await this.playlistSongsService.deletePlaylistSong(playlistId, songId);
+    await this.playlistsService.addPlaylistSongActivity(
       playlistId,
       songId,
       credentialId,

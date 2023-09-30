@@ -1,15 +1,13 @@
-/* eslint-disable no-underscore-dangle */
-
 class SongsHandler {
   constructor(service, validator) {
-    this._service = service;
-    this._validator = validator;
+    this.service = service;
+    this.validator = validator;
   }
 
   async postSongHandler(request, h) {
-    this._validator.validateSongPayload(request.payload);
+    this.validator.validateSongPayload(request.payload);
 
-    const songId = await this._service.addSong(request.payload);
+    const songId = await this.service.addSong(request.payload);
 
     const response = h.response({
       status: 'success',
@@ -25,7 +23,7 @@ class SongsHandler {
   async getSongsHandler(request, h) {
     const params = request.query;
 
-    const songs = await this._service.getSongs(params);
+    const songs = await this.service.getSongs(params);
 
     const response = h.response({
       status: 'success',
@@ -40,7 +38,7 @@ class SongsHandler {
   async getSongByIdHandler(request, h) {
     const { id } = request.params;
 
-    const song = await this._service.getSongById(id);
+    const song = await this.service.getSongById(id);
 
     const response = h.response({
       status: 'success',
@@ -53,11 +51,11 @@ class SongsHandler {
   }
 
   async putSongByIdHandler(request, h) {
-    this._validator.validateSongPayload(request.payload);
+    this.validator.validateSongPayload(request.payload);
 
     const { id } = request.params;
 
-    await this._service.editSongById(id, request.payload);
+    await this.service.editSongById(id, request.payload);
 
     const response = h.response({
       status: 'success',
@@ -70,7 +68,7 @@ class SongsHandler {
   async deleteSongByIdHandler(request, h) {
     const { id } = request.params;
 
-    await this._service.deleteSongById(id);
+    await this.service.deleteSongById(id);
 
     const response = h.response({
       status: 'success',

@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
@@ -7,7 +5,7 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 
 class AlbumsService {
   constructor() {
-    this._pool = new Pool();
+    this.pool = new Pool();
   }
 
   async addAlbum({ name, year }) {
@@ -16,20 +14,15 @@ class AlbumsService {
     const updatedAt = createdAt;
 
     const query = {
-      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5) RETURNING id',
+      text: 'INSERT INTO albums VALUES($1, $2, $3, NULL, $4, $5) RETURNING id',
       values: [id, name, year, createdAt, updatedAt],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rows[0].id) throw new InvariantError('Album gagal ditambahkan');
 
     return result.rows[0].id;
-  }
-
-  async getAlbums() {
-    const result = await this._pool.query('SELECT * FROM albums');
-    return result;
   }
 
   async getAlbumById(id) {
@@ -38,7 +31,7 @@ class AlbumsService {
       values: [id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new NotFoundError('Album tidak ditemukan');
 
@@ -53,7 +46,7 @@ class AlbumsService {
       values: [name, year, updatedAt, id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
   }
@@ -64,9 +57,22 @@ class AlbumsService {
       values: [id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
+  }
+
+  async updateAlbumCover(coverUrl, albumId) {
+    const query = {
+      text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
+      values: [coverUrl, albumId],
+    };
+
+    const result = await this.pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError('Cover gagal ditambahkan');
+    }
   }
 }
 

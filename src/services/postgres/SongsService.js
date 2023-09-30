@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
@@ -12,7 +10,7 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 
 class SongsService {
   constructor() {
-    this._pool = new Pool();
+    this.pool = new Pool();
   }
 
   async addSong({
@@ -32,7 +30,7 @@ class SongsService {
       values: [id, title, year, genre, performer, duration, albumId, createdAt, updatedAt],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rows[0].id) throw new InvariantError('Lagu gagal ditambahkan');
 
@@ -44,7 +42,7 @@ class SongsService {
       text: 'SELECT id, title, performer FROM songs',
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     const songs = result.rows;
     let filteredSong = songs;
@@ -59,7 +57,7 @@ class SongsService {
       text: 'SELECT * FROM songs WHERE id = $1',
       values: [id],
     };
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new NotFoundError('Lagu tidak ditemukan');
 
@@ -72,7 +70,7 @@ class SongsService {
       values: [albumId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     return result.rows;
   }
@@ -90,7 +88,7 @@ class SongsService {
       values: [title, year, performer, genre, duration, updatedAt, id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new NotFoundError('Gagal memperbarui lagu. Id tidak ditemukan');
   }
@@ -101,7 +99,7 @@ class SongsService {
       values: [id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan');
   }

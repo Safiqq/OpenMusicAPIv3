@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-
 const mapDBToModelSong = ({
   id,
   name,

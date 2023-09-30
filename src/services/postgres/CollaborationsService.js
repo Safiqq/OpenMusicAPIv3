@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
@@ -7,7 +5,7 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 
 class CollaborationsService {
   constructor() {
-    this._pool = new Pool();
+    this.pool = new Pool();
   }
 
   async addCollaboration(playlistId, userId) {
@@ -18,7 +16,7 @@ class CollaborationsService {
       values: [userId],
     };
 
-    const r2 = await this._pool.query(q2);
+    const r2 = await this.pool.query(q2);
 
     if (!r2.rowCount) throw new NotFoundError('User tidak ditemukan');
 
@@ -30,7 +28,7 @@ class CollaborationsService {
       values: [id, playlistId, userId, createdAt, updatedAt],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     return result.rows[0].id;
   }
@@ -41,7 +39,7 @@ class CollaborationsService {
       values: [playlistId, userId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new InvariantError('Kolaborasi gagal dihapus');
   }
@@ -52,7 +50,7 @@ class CollaborationsService {
       values: [playlistId, userId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new InvariantError('Kolaborasi gagal diverifikasi');
   }

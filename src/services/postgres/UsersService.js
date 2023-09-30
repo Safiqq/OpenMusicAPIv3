@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
@@ -8,7 +6,7 @@ const AuthenticationError = require('../../exceptions/AuthenticationError');
 
 class UsersService {
   constructor() {
-    this._pool = new Pool();
+    this.pool = new Pool();
   }
 
   async addUser({ username, password, fullname }) {
@@ -23,7 +21,7 @@ class UsersService {
       values: [id, username, hashedPassword, fullname, createdAt, updatedAt],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) throw new InvariantError('User gagal ditambahkan');
 
@@ -36,7 +34,7 @@ class UsersService {
       values: [username],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (result.rowCount > 0) throw new InvariantError('Gagal menambahkan user. Username sudah digunakan.');
   }
@@ -47,7 +45,7 @@ class UsersService {
       values: [username],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this.pool.query(query);
 
     if (!result.rowCount) {
       throw new AuthenticationError('Kredensial yang Anda berikan salah');
